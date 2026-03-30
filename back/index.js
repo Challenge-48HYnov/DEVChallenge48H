@@ -1,4 +1,4 @@
-const sql = require('mssql');
+import sql from 'mssql';
 
 const config = {
     user: 'adm-dta',
@@ -15,62 +15,29 @@ const config = {
     }
 };
 
-/*
-    //Use Azure VM Managed Identity to connect to the SQL database
-    const config = {
-        server: process.env["db_server"],
-        port: process.env["db_port"],
-        database: process.env["db_database"],
-        authentication: {
-            type: 'azure-active-directory-msi-vm'
-        },
-        options: {
-            encrypt: true
-        }
-    }
+let pool = null;
 
-    //Use Azure App Service Managed Identity to connect to the SQL database
-    const config = {
-        server: process.env["db_server"],
-        port: process.env["db_port"],
-        database: process.env["db_database"],
-        authentication: {
-            type: 'azure-active-directory-msi-app-service'
-        },
-        options: {
-            encrypt: true
-        }
-    }
-*/
-
-console.log("Starting...");
-connectAndQuery();
-
-async function connectAndQuery() {
+// Initialiser le pool de connexions
+export async function initializeDatabase() {
     try {
-        var poolConnection = await sql.connect(config);
-
-        console.log("Reading rows from the Table...");
-        var resultSet = await poolConnection.request().query(`SELECT pays 
-            FROM Localisation`);
-
-        console.log(`${resultSet.recordset.length} rows returned.`);
-
-        // output column headers
-        var columns = "";
-        for (var column in resultSet.recordset.columns) {
-            columns += column + ", ";
-        }
-        console.log("%s\t", columns.substring(0, columns.length - 2));
-
-        // output row contents from default record set
-        resultSet.recordset.forEach(row => {
-            console.log("%s\t%s", row.CategoryName, row.ProductName);
-        });
-
-        // close connection only when we're certain application is finished
-        poolConnection.close();
+        pool = new sql.ConnectionPool(config);
+        await pool.connect();
+        console.log('Pool de connexions établi avec succès');
     } catch (err) {
-        console.error(err.message);
+        console.error('Erreur lors de la connexion à la base de données:', err.message);
+        throw err;
+    }
+}
+
+// Exporter le pool pour utilisation dans les autres fichiers
+export function getPool() {
+    return pool;
+}
+
+// Fermer la connexion gracieusement
+export async function closeDatabase() {
+    if (pool) {
+        await pool.close();
+        console.log('Pool de connexions fermé');
     }
 }
