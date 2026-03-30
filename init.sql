@@ -5,7 +5,9 @@ USE projet48h;
 CREATE TABLE IF NOT EXISTS Localisation (
     id INT PRIMARY KEY AUTO_INCREMENT,
     pays VARCHAR(100) NOT NULL,
-    ville VARCHAR(100) NOT NULL
+    ville VARCHAR(100) NOT NULL,
+    latitude DECIMAL(9,6),
+    longitude DECIMAL(10,6)
 );
 
 CREATE TABLE IF NOT EXISTS Indice (
