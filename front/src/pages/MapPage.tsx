@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import AtmosMap from '../components/AtmosMap'
 import FilterDrawer, { type AtmosFilters } from '../components/FilterDrawer'
 import IndexLegend from '../components/IndexLegend'
+import FloatingActions from '../components/organisms/FloatingActions'
 import { fetchAtmosPoints } from '../api/atmosClient'
 import type { BBox, AtmosPoint } from '../api/types'
 import { formatIndex, getIndexBucket } from '../lib/indexScoring'
@@ -162,6 +163,7 @@ export default function MapPage() {
       />
 
       {loading ? <div className="loading-overlay">Chargement...</div> : null}
+      <FloatingActions />
     </div>
   )
 }
