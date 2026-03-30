@@ -1,19 +1,30 @@
-const sql = require("mssql");
+const { loadEnvFile } = require('node:process');
+const sql = require('mssql');
+
+try {
+  loadEnvFile('../.env'); 
+} catch (err) {
+  console.error("Fichier .env introuvable, assurez-vous qu'il existe à la racine.");
+}
 
 const config = {
-  user: "adm-dta",
-  password: "le1cp3ny1@", // Note : Changez ce mot de passe dès que possible !
-  server: "projet48h.database.windows.net",
-  database: "projet48h",
-  port: 1433,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  server: process.env.DB_SERVER,
+  database: process.env.DB_DATABASE,
+  port: Number(process.env.DB_PORT) || 1433, 
   options: {
-    encrypt: true, // Obligatoire pour Azure
-    trustServerCertificate: false, // Mettre à true si vous avez des erreurs de certificat
+    encrypt: process.env.DB_ENCRYPT === 'true', 
+    trustServerCertificate: process.env.DB_TRUST_CERT === 'true',
   },
   authentication: {
     type: "default",
   },
 };
+
+console.log(`Tentative de connexion à : ${config.server}`);
+
+// ... la suite de votre fonction connectAndQuery() ...
 
 /*
     //Use Azure VM Managed Identity to connect to the SQL database
