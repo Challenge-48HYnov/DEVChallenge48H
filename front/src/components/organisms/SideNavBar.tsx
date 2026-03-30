@@ -15,8 +15,8 @@ export default function SideNavBar() {
       </div>
 
       <nav className="ui-sidenav-nav">
-        <SideNavItem to="/" end icon="map" label="Map View" />
-        <SideNavItem to="/analytics" icon="insights" label="Analytics" />
+        <SideNavItem to="/map" icon="map" label="Map View" />
+        <SideNavItem to="/" end icon="insights" label="Analytics" />
         <SideNavItem to="#" icon="hub" label="Infrastructure" disabled />
       </nav>
 

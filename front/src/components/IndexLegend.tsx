@@ -7,10 +7,15 @@ const RANGE_ROWS: Array<{ min: number; max: number; color: string }> = [
   { min: 151, max: 1000, color: getIndexBucket(200).color },
 ]
 
-export default function IndexLegend() {
-  return (
-    <div className="legend-panel">
-      <h3 className="legend-title">Atmospheric Index</h3>
+type Props = {
+  withPanel?: boolean
+  withTitle?: boolean
+}
+
+export default function IndexLegend({ withPanel = true, withTitle = true }: Props) {
+  const content = (
+    <>
+      {withTitle ? <h3 className="legend-title">Atmospheric Index</h3> : null}
       <p className="legend-subtitle">
         Indice combiné de la qualité de l'air et des conditions météo.
       </p>
@@ -27,6 +32,14 @@ export default function IndexLegend() {
           </div>
         ))}
       </div>
+    </>
+  )
+
+  if (!withPanel) return content
+
+  return (
+    <div className="legend-panel">
+      {content}
     </div>
   )
 }

@@ -7,8 +7,8 @@ export default function AppAtmos() {
   return (
     <AtmosShell>
       <Routes>
-        <Route path="/" element={<MapPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/" element={<AnalyticsPage />} />
+        <Route path="/map" element={<MapPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AtmosShell>

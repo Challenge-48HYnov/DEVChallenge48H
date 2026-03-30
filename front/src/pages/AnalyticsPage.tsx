@@ -13,12 +13,6 @@ function yyyyMmDd(d: Date) {
   return `${yyyy}-${mm}-${dd}`
 }
 
-function subDaysISO(days: number) {
-  const d = new Date()
-  d.setDate(d.getDate() - days)
-  return yyyyMmDd(d)
-}
-
 function hourKey(ts: string) {
   const d = new Date(ts)
   const yyyy = d.getFullYear()
@@ -45,12 +39,13 @@ function buildSeries(points: AtmosPoint[]) {
 
 export default function AnalyticsPage() {
   const today = useMemo(() => yyyyMmDd(new Date()), [])
+  const defaultFrom = '2024-01-01'
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const [filters, setFilters] = useState<AtmosFilters>({
     dateMode: 'range',
     day: today,
-    from: subDaysISO(3),
+    from: defaultFrom,
     to: today,
 
     indexMin: 0,
