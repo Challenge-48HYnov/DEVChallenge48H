@@ -51,7 +51,7 @@ async function connectAndQuery() {
         var poolConnection = await sql.connect(config);
 
         console.log("Reading rows from the Table...");
-        var resultSet = await poolConnection.request().query(`SELECT pays 
+        var resultSet = await poolConnection.request().query(`SELECT * 
             FROM Localisation`);
 
         console.log(`${resultSet.recordset.length} rows returned.`);
