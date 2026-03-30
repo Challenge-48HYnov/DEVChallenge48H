@@ -62,13 +62,6 @@ async function connectAndQuery(table, country = "default", city = "default", ind
     var poolConnection = await sql.connect(config);
     let request = await poolConnection.request();
 
-    var country = "test3";
-    var city = "test5";
-
-    var indic = "test8";
-    var localisation = "test10";
-    var date = "test12";
-
     console.log("Reading rows from the Table...");
     if (table == "localisation") {
       request.input("country", sql.VarChar, country);
