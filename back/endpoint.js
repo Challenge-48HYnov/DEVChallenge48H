@@ -33,17 +33,23 @@ app.get('/indices', async (req, res) => {
       fields = req.query.fields.split(',');
     }
     
-    const includeCategory = req.query.include === 'location';
+    const includeLocation = req.query.include === 'location';
     
-    const select = construct.buildSelect(fields, includeCategory);
+    const select = construct.buildSelect(fields, includeLocation);
     const { clause: where, params: whereParams } = construct.buildWhere(filters);
-    const order = construct.buildOrder(sort);
+    let order = construct.buildOrder(sort);
     
-    const join = includeCategory ? 'LEFT JOIN Localisation l ON l.id = p.localisation_id' : '';
+    // SQL Server requires ORDER BY when using OFFSET/FETCH
+    if (!order) {
+      order = 'ORDER BY p.id ASC';
+    }
+    
+    const join = includeLocation ? 'LEFT JOIN Localisation l ON l.id = p.localisation_id' : '';
     
     const countQuery = `
       SELECT COUNT(*) as total 
       FROM indice p 
+      ${join}
       ${where}
     `;
     
@@ -57,6 +63,7 @@ app.get('/indices', async (req, res) => {
     `;
     
 
+    console.log('Requête de données:', dataQuery);
     const pool = getPool();
     if (!pool) {
       return res.status(500).json({ error: 'Base de données non connectée' });
@@ -78,8 +85,8 @@ app.get('/indices', async (req, res) => {
       dataRequest = dataRequest.input(`param${index}`, param);
     });
     const dataResult = await dataRequest.query(dataQuery);
-    
-    const products = construct.formatResults(dataResult.recordset, fields, includeCategory);
+    console.log('Données récupérées:', dataResult.recordset);
+    const products = construct.formatResults(dataResult.recordset, fields, includeLocation);
     
     res.json({
       data: products,

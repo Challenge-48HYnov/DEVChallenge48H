@@ -1,7 +1,7 @@
-const { Worker } = require("worker_threads");
+import { Worker } from "worker_threads";
 
 // Create a worker
-const worker = new Worker("./message_worker.js");
+const worker = new Worker("./message_worker.js", { type: 'module' });
 
 let workerTime = 0;
 const timer = 1000;

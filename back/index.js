@@ -1,10 +1,10 @@
-const { loadEnvFile } = require('node:process');
+import dotenv from 'dotenv';
 import sql from 'mssql';
 
 try {
-  loadEnvFile('../.env'); 
+  dotenv.config({ path: './.env' });
 } catch (err) {
-  console.error("Fichier .env introuvable, assurez-vous qu'il existe à la racine.");
+  console.error("Fichier .env introuvable, assurez-vous qu'il existe à la racine.", err.message);
 }
 
 const config = {
