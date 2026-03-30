@@ -20,6 +20,7 @@ export type AtmosFilters = {
 
 type Props = {
   open: boolean
+  pinned?: boolean
   filters: AtmosFilters
   onClose: () => void
   onApply: (next: AtmosFilters) => void
@@ -36,6 +37,7 @@ function todayISO() {
 
 export default function FilterDrawer({
   open,
+  pinned = false,
   filters,
   onClose,
   onApply,
@@ -70,7 +72,7 @@ export default function FilterDrawer({
 
   return (
     <aside
-      className={`filter-drawer ${open ? 'is-open' : ''}`}
+      className={`filter-drawer ${open ? 'is-open' : ''} ${pinned ? 'is-pinned' : ''}`}
       role="dialog"
       aria-label="Filtres"
       aria-modal="true"
@@ -80,9 +82,11 @@ export default function FilterDrawer({
           <h2 className="filter-title">Filters</h2>
           <p className="filter-subtitle">Adjust view parameters</p>
         </div>
-        <button className="icon-btn" type="button" onClick={onClose} aria-label="Fermer">
-          ✕
-        </button>
+        {!pinned ? (
+          <button className="icon-btn" type="button" onClick={onClose} aria-label="Fermer">
+            ✕
+          </button>
+        ) : null}
       </div>
 
       <div className="filter-section">

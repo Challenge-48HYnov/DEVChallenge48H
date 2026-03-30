@@ -16,12 +16,6 @@ function yyyyMmDd(d: Date) {
   return `${yyyy}-${mm}-${dd}`
 }
 
-function subDaysISO(days: number) {
-  const d = new Date()
-  d.setDate(d.getDate() - days)
-  return yyyyMmDd(d)
-}
-
 function maxTimestamp(points: AtmosPoint[]): string | null {
   const t = points
     .map((p) => (p.timestamp ? new Date(p.timestamp).getTime() : 0))
@@ -32,12 +26,13 @@ function maxTimestamp(points: AtmosPoint[]): string | null {
 
 export default function MapPage() {
   const today = useMemo(() => yyyyMmDd(new Date()), [])
-  const [drawerOpen, setDrawerOpen] = useState(true)
+  const defaultFrom = '2024-01-01'
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const [filters, setFilters] = useState<AtmosFilters>({
-    dateMode: 'day',
+    dateMode: 'range',
     day: today,
-    from: subDaysISO(7),
+    from: defaultFrom,
     to: today,
 
     indexMin: 0,
@@ -110,7 +105,7 @@ export default function MapPage() {
   const latestTs = useMemo(() => maxTimestamp(points), [points])
 
   return (
-    <div className="map-page">
+    <div className="map-page map-page--with-pinned-drawer">
       <div className="map-topButtons">
         <button
           type="button"
@@ -134,6 +129,9 @@ export default function MapPage() {
           <div className="metric-sub">
             {points.length} points • {latestTs ? new Date(latestTs).toLocaleString('fr-FR') : '—'}
           </div>
+          {points.length === 0 ? (
+            <div className="metric-sub">Aucune donnée sur la plage actuelle, élargis les dates.</div>
+          ) : null}
         </div>
 
         <div className="legend-card">
@@ -152,6 +150,7 @@ export default function MapPage() {
 
       <FilterDrawer
         open={drawerOpen}
+        pinned
         filters={filters}
         onClose={() => setDrawerOpen(false)}
         onApply={(next) => {

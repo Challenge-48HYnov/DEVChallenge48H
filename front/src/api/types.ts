@@ -30,6 +30,9 @@ export type FetchAtmosPointsParams = {
   indexMin?: number
   indexMax?: number
   bbox?: BBox
+  page?: number
+  limit?: number
+  sort?: string
 }
 
 export type FetchAtmosPointsResponse =
@@ -37,4 +40,21 @@ export type FetchAtmosPointsResponse =
   | {
       points: AtmosPoint[]
     }
+
+export type BackendIndiceRow = {
+  id: number
+  date: string
+  indice: number
+  localisation_id: number
+}
+
+export type BackendIndicesResponse = {
+  data: BackendIndiceRow[]
+  pagination?: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
 
