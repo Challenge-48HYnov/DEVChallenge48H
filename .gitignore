@@ -1,0 +1,52 @@
+# Dépendances
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Fichiers d'environnement
+.env
+.env.local
+.env.*.local
+
+# Build / production
+dist/
+build/
+out/
+
+# Cache
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.svelte-kit/
+
+# Coverage (tests)
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Fichiers temporaires
+tmp/
+temp/
+
+# Lock files optionnels (selon ton choix d'équipe)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Fichiers spécifiques
+*.tsbuildinfo
