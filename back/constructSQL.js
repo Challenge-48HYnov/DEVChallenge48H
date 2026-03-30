@@ -39,8 +39,9 @@ construct.buildSelect = function (fields, includeLocalisation) {
   
   const selectFields = fields.map(f => `p.${f}`).join(', ');
   
+  // TODO enlever les fields brut
   if (includeLocalisation) {
-    return `${selectFields}, l.pays as loc_pays, l.ville as loc_ville`;
+    return `${selectFields}, l.ville, l.pays, l.latitude, l.longitude`;
   }
   
   return selectFields;
@@ -55,18 +56,19 @@ construct.buildWhere = function (filters, tableName = 'indice') {
   const params = [];
   
   for (const filter of filters) {
-    if (!isValidField(tableName, filter.field)) {
-      throw new Error(`Champ de filtrage non autorisé ou inexistant: ${filter.field}`);
+    let preField = 'p.';
+    if (existingKeys.data.tableSchema.Localisation.some(f => f.name === filter.field)) {
+      preField = 'l.';
     }
     
     const opToSQL = existingKeys.filterToSQL;
     const sqlOperator = opToSQL[filter.operator] || '=';
     
     if (filter.operator === 'like') {
-      conditions.push(`p.${filter.field} ${sqlOperator} %${filter.value}%`);
+      conditions.push(`${preField}${filter.field} ${sqlOperator} %${filter.value}%`);
       params.push(`%${filter.value}%`);
     } else {
-      conditions.push(`p.${filter.field} ${sqlOperator} ${convertFieldValue(tableName, filter.field, filter.value)}`);
+      conditions.push(`${preField}${filter.field} ${sqlOperator} ${convertFieldValue(tableName, filter.field, filter.value)}`);
       params.push(convertFieldValue(tableName, filter.field, filter.value));
     }
   }
@@ -104,12 +106,13 @@ construct.buildOrder = function (sort, tableName = 'indice') {
 construct.parseFilters = function(query, tableName = 'indice') {
     const filters = [];
     const validFields = construct.getAllValidFields(tableName);
+    const validFields2 = construct.getAllValidFields('Localisation');
     const validOperators = Object.keys(existingKeys.filterToSQL);
     for (const key in query.filter) {
         const field = key;
         for (const operator in query.filter[key]) {
             const value = query.filter[key][operator];
-            if (!validFields.includes(field)) {
+            if (!validFields.includes(field) && !validFields2.includes(field)) {
                 throw new Error(`Champ de filtrage non autorisé ou inexistant: ${field}`);
             }
             if (!validOperators.includes(operator)) {
@@ -138,11 +141,13 @@ construct.formatResults = function(rows, fields, includeLocalisation, tableName 
       });
     }
     
-    if (includeLocalisation && row.cat_id) {
-      product.category = {
-        id: row.cat_id,
-        name: row.cat_name,
-        description: row.cat_description
+    if (includeLocalisation && row.localisation_id) {
+      product.localisation = {
+        id: row.localisation_id,
+        ville: row.ville,
+        pays: row.pays,
+        latitude: row.latitude,
+        longitude: row.longitude
       };
     }
     
