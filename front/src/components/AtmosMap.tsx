@@ -1,4 +1,4 @@
-import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet'
+import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet'
 import * as L from 'leaflet'
 import type { AtmosPoint, BBox } from '../api/types'
 import { formatIndex, getIndexBucket, getIndexRadiusPx } from '../lib/indexScoring'
@@ -7,6 +7,7 @@ type Props = {
   points: AtmosPoint[]
   isLoading?: boolean
   onBoundsChange?: (bbox: BBox) => void
+  onPointClick?: (point: AtmosPoint) => void
   initialCenter?: [number, number]
   initialZoom?: number
   tileUrl?: string
@@ -70,6 +71,7 @@ export default function AtmosMap({
   points,
   isLoading,
   onBoundsChange,
+  onPointClick,
   initialCenter = [46.2276, 2.2137], // France
   initialZoom = 5,
   tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -83,48 +85,16 @@ export default function AtmosMap({
         {isLoading ? null : null}
 
         {points.map((p) => (
-          <Marker key={p.id} position={[p.latitude, p.longitude]} icon={makeIndexDivIcon(p)}>
-            <Popup>
-              <div className="popup-title">{p.stationName}</div>
-              <div className="popup-row">
-                <span className="popup-key">Indice</span>
-                <span className="popup-val">{formatIndex(p.index)}</span>
-              </div>
-              <div className="popup-row">
-                <span className="popup-key">Coord.</span>
-                <span className="popup-val">
-                  {p.latitude.toFixed(4)}, {p.longitude.toFixed(4)}
-                </span>
-              </div>
-              <div className="popup-row">
-                <span className="popup-key">Date</span>
-                <span className="popup-val">
-                  {p.timestamp ? new Date(p.timestamp).toLocaleString('fr-FR') : '—'}
-                </span>
-              </div>
-
-              {p.weather?.temperatureC != null ? (
-                <div className="popup-row">
-                  <span className="popup-key">Temp.</span>
-                  <span className="popup-val">{p.weather.temperatureC.toFixed(1)}°C</span>
-                </div>
-              ) : null}
-
-              {p.weather?.humidityPercent != null ? (
-                <div className="popup-row">
-                  <span className="popup-key">Humidité</span>
-                  <span className="popup-val">{p.weather.humidityPercent.toFixed(0)}%</span>
-                </div>
-              ) : null}
-
-              {p.pollutants?.PM2_5 != null ? (
-                <div className="popup-row">
-                  <span className="popup-key">PM2.5</span>
-                  <span className="popup-val">{p.pollutants.PM2_5.toFixed(0)} µg/m³</span>
-                </div>
-              ) : null}
-            </Popup>
-          </Marker>
+          <Marker
+            key={p.id}
+            position={[p.latitude, p.longitude]}
+            icon={makeIndexDivIcon(p)}
+            eventHandlers={{
+              click: () => {
+                onPointClick?.(p)
+              },
+            }}
+          />
         ))}
       </MapContainer>
     </div>
