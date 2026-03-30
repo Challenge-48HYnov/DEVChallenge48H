@@ -74,12 +74,15 @@ export default function AtmosMap({
   onPointClick,
   initialCenter = [46.2276, 2.2137], // France
   initialZoom = 5,
-  tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
 }: Props) {
   return (
     <div className="map-container">
       <MapContainer center={initialCenter} zoom={initialZoom} scrollWheelZoom className="map-leaflet">
-        <TileLayer url={tileUrl} attribution="&copy; OpenStreetMap contributors" />
+        <TileLayer
+          url={tileUrl}
+          attribution='&copy; OpenStreetMap contributors &copy; CARTO'
+        />
         <BoundsWatcher onBoundsChange={onBoundsChange} />
 
         {isLoading ? null : null}

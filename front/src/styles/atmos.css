@@ -155,7 +155,7 @@ body {
 /* -------- Map + overlays -------- */
 .map-page {
   position: relative;
-  height: calc(100svh - 56px);
+  height: calc(100dvh - 56px);
   background: var(--atmo-bg);
   overflow: hidden;
 }
@@ -163,6 +163,7 @@ body {
 .map-container,
 .map-leaflet {
   height: 100%;
+  background: #000;
 }
 
 .map-leaflet {
@@ -1307,7 +1308,7 @@ body {
   }
 
   .map-page {
-    height: calc(100svh - 56px);
+    height: calc(100dvh - 56px);
   }
 
   .legend-panel {
