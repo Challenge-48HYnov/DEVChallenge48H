@@ -4,6 +4,7 @@ const { Worker } = require("worker_threads");
 const worker = new Worker("./message_worker.js");
 
 let workerTime = 0;
+const timer = 1000;
 
 async function repeatAsync() {
   while (true) {
@@ -11,7 +12,7 @@ async function repeatAsync() {
     console.debug("In Worker: ", workerTime);
     workerTime += 1;
     worker.postMessage(workerTime);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, timer));
   }
 }
 
