@@ -222,6 +222,40 @@ body {
   width: 260px;
 }
 
+.collapsible-card .collapse-head {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0 0 8px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.collapse-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(218, 226, 253, 0.9);
+}
+
+.collapse-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid rgba(69, 70, 82, 0.25);
+  background: rgba(19, 27, 46, 0.55);
+  color: rgba(218, 226, 253, 0.95);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  line-height: 1;
+  font-size: 14px;
+}
+
 .legend-panel {
   padding: 14px;
   background: rgba(19, 27, 46, 0.75);
@@ -273,22 +307,28 @@ body {
 }
 
 .map-filterToggle {
-  position: absolute;
-  top: 76px;
-  right: 18px;
-  z-index: 30;
-  background: rgba(158, 202, 255, 0.18);
-  border: 1px solid rgba(158, 202, 255, 0.35);
-  color: var(--atmo-primary);
+  position: fixed;
+  top: 72px;
+  right: 12px;
+  z-index: 75;
+  background: rgba(11, 19, 38, 0.92);
+  border: 1px solid rgba(158, 202, 255, 0.55);
+  color: #c6e0ff;
   padding: 10px 14px;
   border-radius: 14px;
   font-weight: 800;
   cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.map-filterToggle.is-open {
+  right: 372px;
 }
 
 @media (min-width: 981px) {
   .map-filterToggle {
-    display: none;
+    top: 72px;
+    right: 12px;
   }
 }
 
@@ -390,7 +430,7 @@ body {
   box-shadow: -20px 0 80px rgba(0, 0, 0, 0.45);
   transform: translateX(110%);
   transition: transform 0.2s ease;
-  padding: 14px;
+  padding: 0 14px 14px;
   overflow: auto;
 }
 
@@ -408,7 +448,10 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin: 0 -14px 12px;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid rgba(69, 70, 82, 0.2);
+  background: rgba(11, 19, 38, 0.92);
 }
 
 .filter-title {
@@ -433,7 +476,7 @@ body {
 }
 
 .filter-section {
-  background: rgba(19, 27, 46, 0.55);
+  background: transparent;
   border: 1px solid rgba(69, 70, 82, 0.2);
   border-radius: 16px;
   padding: 12px;
@@ -561,8 +604,8 @@ body {
 .filter-footer {
   position: sticky;
   bottom: 0;
-  margin-top: 12px;
-  padding-top: 10px;
+  margin: 12px -14px -14px;
+  padding: 10px 14px 14px;
   background: linear-gradient(
     to top,
     rgba(11, 19, 38, 0.97),
@@ -1134,7 +1177,7 @@ body {
 
 /* --- Responsive fixes --- */
 @media (min-width: 981px) {
-  .map-page {
+  .map-page.map-page--with-drawer {
     padding-right: 360px;
   }
 
@@ -1199,6 +1242,10 @@ body {
     right: 12px;
     border-radius: 9999px;
     padding: 10px 12px;
+  }
+
+  .map-filterToggle.is-open {
+    right: 12px;
   }
 
   .filter-drawer {

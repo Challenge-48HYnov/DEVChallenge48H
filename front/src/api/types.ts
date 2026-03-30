@@ -46,6 +46,18 @@ export type BackendIndiceRow = {
   date: string
   indice: number
   localisation_id: number
+  stationName?: string
+  latitude?: number
+  longitude?: number
+  lat?: number
+  lng?: number
+  PM2_5?: number
+  NO2?: number
+  O3?: number
+  temperatureC?: number
+  humidityPercent?: number
+  pressureHpa?: number
+  windSpeedKmh?: number
 }
 
 export type BackendIndicesResponse = {

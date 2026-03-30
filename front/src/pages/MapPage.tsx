@@ -28,7 +28,9 @@ function maxTimestamp(points: AtmosPoint[]): string | null {
 export default function MapPage() {
   const today = useMemo(() => yyyyMmDd(new Date()), [])
   const defaultFrom = '2024-01-01'
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(true)
+  const [kpiOpen, setKpiOpen] = useState(true)
+  const [legendOpen, setLegendOpen] = useState(true)
 
   const [filters, setFilters] = useState<AtmosFilters>({
     dateMode: 'range',
@@ -107,37 +109,52 @@ export default function MapPage() {
   const latestTs = useMemo(() => maxTimestamp(points), [points])
 
   return (
-    <div className="map-page map-page--with-pinned-drawer">
+    <div className={`map-page ${drawerOpen ? 'map-page--with-drawer' : ''}`}>
       <div className="map-topButtons">
-        <button
-          type="button"
-          className="map-filterToggle"
-          onClick={() => setDrawerOpen(true)}
-          aria-label="Ouvrir les filtres"
-        >
-          Parametres
-        </button>
+        {!drawerOpen ? (
+          <button
+            type="button"
+            className={`map-filterToggle ${drawerOpen ? 'is-open' : ''}`}
+            onClick={() => setDrawerOpen((v) => !v)}
+            aria-label={drawerOpen ? 'Fermer les filtres' : 'Ouvrir les filtres'}
+          >
+            Parametres
+          </button>
+        ) : null}
       </div>
 
       <div className="map-overlay">
-        <div className="metric-card">
-          <div className="metric-label">Indice du jour</div>
-          <div className="metric-value" style={{ color: dailyBucket?.color ?? undefined }}>
-            {dailyIndex != null ? formatIndex(dailyIndex) : '—'}
-          </div>
-          <div className="metric-status">
-            {dailyBucket ? dailyBucket.label : 'En attente'}
-          </div>
-          <div className="metric-sub">
-            {points.length} points • {latestTs ? new Date(latestTs).toLocaleString('fr-FR') : '—'}
-          </div>
-          {points.length === 0 ? (
-            <div className="metric-sub">Aucune donnée sur la plage actuelle, élargis les dates.</div>
+        <div className="metric-card collapsible-card">
+          <button type="button" className="collapse-head" onClick={() => setKpiOpen((v) => !v)}>
+            <span className="collapse-title">Indice du jour</span>
+            <span className="collapse-icon">{kpiOpen ? '−' : '+'}</span>
+          </button>
+          {kpiOpen ? (
+            <>
+              <div className="metric-value" style={{ color: dailyBucket?.color ?? undefined }}>
+                {dailyIndex != null ? formatIndex(dailyIndex) : '—'}
+              </div>
+              <div className="metric-status">
+                {dailyBucket ? dailyBucket.label : 'En attente'}
+              </div>
+              <div className="metric-sub">
+                {points.length} points • {latestTs ? new Date(latestTs).toLocaleString('fr-FR') : '—'}
+              </div>
+              {points.length === 0 ? (
+                <div className="metric-sub">Aucune donnée sur la plage actuelle, élargis les dates.</div>
+              ) : null}
+            </>
           ) : null}
         </div>
 
         <div className="legend-card">
-          <IndexLegend />
+          <div className="legend-panel collapsible-card">
+            <button type="button" className="collapse-head" onClick={() => setLegendOpen((v) => !v)}>
+              <span className="collapse-title">Atmospheric Index</span>
+              <span className="collapse-icon">{legendOpen ? '−' : '+'}</span>
+            </button>
+            {legendOpen ? <IndexLegend withPanel={false} withTitle={false} /> : null}
+          </div>
         </div>
       </div>
 
@@ -153,7 +170,6 @@ export default function MapPage() {
 
       <FilterDrawer
         open={drawerOpen}
-        pinned
         filters={filters}
         onClose={() => setDrawerOpen(false)}
         onApply={(next) => {
