@@ -1,0 +1,155 @@
+services:
+  front:
+    build:
+      context: .
+      dockerfile: front/Dockerfile
+    container_name: front
+    ports:
+      - "80:80"
+    depends_on:
+      data-api:
+        condition: service_healthy
+    networks:
+      - edge_net
+      - app_net
+
+  data-api:
+    build:
+      context: .
+      dockerfile: back/Dockerfile
+    container_name: data-api
+    env_file:
+      - ../secrets/db.env
+    environment:
+      DB_HOST: db-proxy
+      DB_PORT: "3306"
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    depends_on:
+      db-proxy:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    networks:
+      - app_net
+      - data_net
+
+  db-master:
+    image: bitnami/mariadb:latest
+    container_name: db-master
+    env_file:
+      - ../secrets/db.env
+    environment:
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_DATABASE: ${DB_DATABASE:-projet48h}
+      MARIADB_USER: ${DB_USER:-app_user}
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_REPLICATION_MODE: master
+      MARIADB_REPLICATION_USER: ${MARIADB_REPLICATION_USER:-replicator}
+      MARIADB_REPLICATION_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - db_master_data:/bitnami/mariadb
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root --password=$$(cat /run/secrets/db_password)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - data_net
+
+  db-slave:
+    image: bitnami/mariadb:latest
+    container_name: db-slave
+    depends_on:
+      db-master:
+        condition: service_healthy
+    env_file:
+      - ../secrets/db.env
+    environment:
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_DATABASE: ${DB_DATABASE:-projet48h}
+      MARIADB_USER: ${DB_USER:-app_user}
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_MASTER_HOST: db-master
+      MARIADB_MASTER_PORT_NUMBER: 3306
+      MARIADB_REPLICATION_MODE: slave
+      MARIADB_REPLICATION_USER: ${MARIADB_REPLICATION_USER:-replicator}
+      MARIADB_REPLICATION_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - db_slave_data:/bitnami/mariadb
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root --password=$$(cat /run/secrets/db_password)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - data_net
+
+  db-proxy:
+    image: haproxy:3.1-alpine
+    container_name: db-proxy
+    depends_on:
+      db-master:
+        condition: service_healthy
+      db-slave:
+        condition: service_healthy
+    volumes:
+      - ./db/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    healthcheck:
+      test: ["CMD", "haproxy", "-c", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - data_net
+
+  netdata:
+    image: netdata/netdata:stable
+    container_name: netdata
+    hostname: projet48h-monitor
+    ports:
+      - "19999:19999"
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor=unconfined
+    volumes:
+      - netdata_config:/etc/netdata
+      - netdata_lib:/var/lib/netdata
+      - netdata_cache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - observe_net
+
+secrets:
+  db_password:
+    file: ../secrets/db_password.txt
+
+volumes:
+  db_master_data:
+  db_slave_data:
+  netdata_config:
+  netdata_lib:
+  netdata_cache:
+
+networks:
+  edge_net:
+  app_net:
+    internal: true
+  data_net:
+    internal: true
+  observe_net:
