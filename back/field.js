@@ -16,11 +16,6 @@ existingKeys.data = {
     }
 }; 
 
-existingKeys.sort = {
-
-
-};
-
 existingKeys.filterToSQL = {
     'gt': '>',
     'gte': '>=',
@@ -31,8 +26,5 @@ existingKeys.filterToSQL = {
     'like': 'LIKE'
 }; 
 
-existingKeys.table = {
-    
-};
 
 export default existingKeys;

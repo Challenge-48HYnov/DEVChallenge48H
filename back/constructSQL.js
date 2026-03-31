@@ -2,7 +2,7 @@ import existingKeys from './field.js';
 
 const construct = {};
 
-// Fonctions utilitaires pour valider et convertir les champs selon le schéma
+// ======================= UTILS =======================
 function getFieldType(tableName, fieldName) {
   const table = existingKeys.data.tableSchema[tableName];
   if (!table) return null;
@@ -32,6 +32,9 @@ function convertFieldValue(tableName, fieldName, value) {
   return value;
 }
 
+// ======================= CONSTRUCTORS =======================
+
+
 construct.buildSelect = function (fields, includeLocalisation) {
   if (!fields || fields.length === 0) {
     fields = existingKeys.data.tableSchema.indice.map(f => f.name);
@@ -39,7 +42,6 @@ construct.buildSelect = function (fields, includeLocalisation) {
   
   const selectFields = fields.map(f => `p.${f}`).join(', ');
   
-  // TODO enlever les fields brut
   if (includeLocalisation) {
     return `${selectFields}, l.ville, l.pays, l.latitude, l.longitude`;
   }
@@ -102,7 +104,6 @@ construct.buildOrder = function (sort, tableName = 'indice') {
 }
 
 
-// retourne un tableau de field, operateur et valeur pour chaque filtre demandé 
 construct.parseFilters = function(query, tableName = 'indice') {
     const filters = [];
     const validFields = construct.getAllValidFields(tableName);
