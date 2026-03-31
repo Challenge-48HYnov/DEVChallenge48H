@@ -51,6 +51,21 @@ export type BackendIndiceRow = {
   longitude?: number
   lat?: number
   lng?: number
+  location?: {
+    latitude?: number
+    longitude?: number
+    ville?: string
+    pays?: string
+    name?: string
+  }
+  localisation?: {
+    id?: number
+    latitude?: number
+    longitude?: number
+    ville?: string
+    pays?: string
+    name?: string
+  }
   PM2_5?: number
   NO2?: number
   O3?: number
