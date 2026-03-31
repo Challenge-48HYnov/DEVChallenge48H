@@ -17,19 +17,7 @@ export default function SideNavBar() {
       <nav className="ui-sidenav-nav">
         <SideNavItem to="/map" icon="map" label="Map View" />
         <SideNavItem to="/" end icon="insights" label="Analytics" />
-        <SideNavItem to="#" icon="hub" label="Infrastructure" disabled />
       </nav>
-
-      <div className="ui-sidenav-foot">
-        <span className="side-nav-item is-disabled">
-          <Icon name="settings" />
-          Settings
-        </span>
-        <span className="side-nav-item is-disabled">
-          <Icon name="help" />
-          Support
-        </span>
-      </div>
     </aside>
   )
 }

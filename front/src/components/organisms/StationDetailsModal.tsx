@@ -63,9 +63,6 @@ export default function StationDetailsModal({ point, onClose }: Props) {
 
           <div className="station-footer">
             <p>Dernière mise à jour : {new Date(point.timestamp).toLocaleString('fr-FR')}</p>
-            <button type="button" className="station-report">
-              Rapport Complet PDF
-            </button>
           </div>
         </div>
 
