@@ -40,7 +40,8 @@ export default function MapPage() {
     indexMin: 0,
     indexMax: 200,
 
-    useBbox: true,
+    // Disabled by default so users see global points immediately.
+    useBbox: false,
     bboxPreview: undefined,
 
     autoRefresh: true,

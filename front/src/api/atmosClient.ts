@@ -57,7 +57,8 @@ function buildUrl(params: FetchAtmosPointsParams) {
   url.searchParams.set('fields', 'id,date,indice,localisation_id')
   url.searchParams.set('include', 'location')
   url.searchParams.set('page', String(params.page ?? 1))
-  url.searchParams.set('limit', String(params.limit ?? 500))
+  // Fetch more points by default to improve map visibility.
+  url.searchParams.set('limit', String(params.limit ?? 5000))
   // Le backend supporte bien les filtres numériques.
   // Les filtres de date peuvent dépendre du parsing SQL; on applique donc
   // le filtre temporel côté front pour éviter les erreurs serveur.

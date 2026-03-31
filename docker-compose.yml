@@ -38,6 +38,30 @@ services:
       - app_net
       - data_net
 
+  data-worker:
+    build:
+      context: .
+      dockerfile: back/Dockerfile
+    container_name: data-worker
+    env_file:
+      - ../secrets/db.env
+    environment:
+      DB_HOST: db-proxy
+      DB_PORT: "3306"
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      DATA_CSV_PATH: /data/cleaned/meteo_clean.csv
+    secrets:
+      - db_password
+    volumes:
+      - ../DATA:/data:ro
+    command: ["node", "back/worker.js"]
+    depends_on:
+      db-proxy:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - data_net
+
   db-master:
     image: bitnami/mariadb:latest
     container_name: db-master
