@@ -39,7 +39,6 @@ app.get('/indices', async (req, res) => {
     const { clause: where, params: whereParams } = construct.buildWhere(filters);
     let order = construct.buildOrder(sort);
     
-    // SQL Server requires ORDER BY when using OFFSET/FETCH
     if (!order) {
       order = 'ORDER BY p.id ASC';
     }
@@ -69,7 +68,6 @@ app.get('/indices', async (req, res) => {
       return res.status(500).json({ error: 'Base de données non connectée' });
     }
 
-    // Compter les résultats
     let countRequest = pool.request();
     whereParams.forEach((param, index) => {
       countRequest = countRequest.input(`param${index}`, param);
@@ -79,7 +77,6 @@ app.get('/indices', async (req, res) => {
     const total = countResult.recordset[0].total;
     const totalPages = Math.ceil(total / limit);
     
-    // Récupérer les données
     let dataRequest = pool.request();
     whereParams.forEach((param, index) => {
       dataRequest = dataRequest.input(`param${index}`, param);
@@ -111,7 +108,6 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route non trouvée' });
 });
 
-// Initialiser et démarrer le serveur
 async function startServer() {
   try {
     await initializeDatabase();
