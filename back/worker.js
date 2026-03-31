@@ -4,7 +4,7 @@ import { Worker } from "worker_threads";
 const worker = new Worker("./message_worker.js", { type: 'module' });
 
 let workerTime = 0;
-const timer = 1000;
+const timer = 500000;
 
 async function repeatAsync() {
   while (true) {
