@@ -61,14 +61,14 @@ app.get('/indices', async (req, res) => {
     
     const countQuery = `
       SELECT COUNT(*) as total 
-      FROM Indice p 
+      FROM indice p 
       ${join}
       ${where}
     `;
     
     const dataQuery = `
       SELECT ${select}
-      FROM Indice p
+      FROM indice p
       ${join}
       ${where}
       ${order}
