@@ -11,6 +11,7 @@
 }
 
 body {
+  margin: 0;
   background: var(--atmo-bg);
   color: var(--atmo-text);
 }
