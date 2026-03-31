@@ -57,7 +57,7 @@ services:
       - db_master_data:/bitnami/mariadb
       - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root --password=$$(cat /run/secrets/db_password)"]
+      test: ["CMD-SHELL", "mariadb-admin ping --socket=/opt/bitnami/mariadb/tmp/mysql.sock -u root --password=$$(cat /run/secrets/db_password)"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -87,10 +87,11 @@ services:
     volumes:
       - db_slave_data:/bitnami/mariadb
     healthcheck:
-      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root --password=$$(cat /run/secrets/db_password)"]
+      test: ["CMD-SHELL", "mariadb-admin ping --socket=/opt/bitnami/mariadb/tmp/mysql.sock -u root --password=$$(cat /run/secrets/db_password)"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 20
+      start_period: 120s
     networks:
       - data_net
 
