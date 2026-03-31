@@ -14,7 +14,6 @@ export type AtmosPoint = {
   timestamp: string // ISO string
   index: number // indice combiné pollution + météo
 
-  // Données optionnelles (selon ce que l'équipe data renvoie)
   pollutants?: Record<string, number>
   weather?: {
     temperatureC?: number
@@ -25,8 +24,8 @@ export type AtmosPoint = {
 }
 
 export type FetchAtmosPointsParams = {
-  from: string // ISO datetime
-  to: string // ISO datetime
+  from: string 
+  to: string 
   indexMin?: number
   indexMax?: number
   bbox?: BBox
@@ -51,20 +50,12 @@ export type BackendIndiceRow = {
   longitude?: number
   lat?: number
   lng?: number
-  location?: {
-    latitude?: number
-    longitude?: number
-    ville?: string
-    pays?: string
-    name?: string
-  }
   localisation?: {
     id?: number
-    latitude?: number
-    longitude?: number
     ville?: string
     pays?: string
-    name?: string
+    latitude?: number
+    longitude?: number
   }
   PM2_5?: number
   NO2?: number
@@ -84,4 +75,3 @@ export type BackendIndicesResponse = {
     totalPages: number
   }
 }
-
