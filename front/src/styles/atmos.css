@@ -11,6 +11,7 @@
 }
 
 body {
+  margin: 0;
   background: var(--atmo-bg);
   color: var(--atmo-text);
 }
@@ -179,7 +180,7 @@ body {
 .map-overlay {
   position: absolute;
   top: 18px;
-  left: 18px;
+  left: 28px;
   z-index: 20;
   display: flex;
   gap: 12px;
@@ -360,6 +361,16 @@ body {
 /* -------- Index circles in Leaflet -------- */
 .index-marker-icon {
   user-select: none;
+  background: transparent;
+  border: none;
+}
+
+.index-marker-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transform: translateY(-6px);
 }
 
 .index-circle {
@@ -369,12 +380,37 @@ body {
   border-radius: 9999px;
   font-weight: 900;
   box-sizing: border-box;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  transition: transform 140ms ease;
+}
+
+.index-marker-icon:hover .index-circle {
+  transform: scale(1.06);
 }
 
 .index-circle-value {
-  font-size: 12px;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.index-circle-label {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 140ms ease, transform 140ms ease;
+  background: rgba(19, 27, 46, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.index-marker-icon:hover .index-circle-label {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .leaflet-popup-content-wrapper {
@@ -388,6 +424,13 @@ body {
 .leaflet-popup-tip {
   background: rgba(19, 27, 46, 0.92) !important;
   border: 1px solid rgba(69, 70, 82, 0.25) !important;
+}
+
+@media (min-width: 980px) {
+  .map-page .leaflet-top.leaflet-left {
+    /* décale les contrôles de zoom encore plus sous la sidebar */
+    left: -40px;
+  }
 }
 
 .leaflet-popup-content {
@@ -630,6 +673,12 @@ body {
   padding: 24px 18px;
 }
 
+@media (min-width: 981px) {
+  .analytics-page {
+    padding-left: 28px;
+  }
+}
+
 .analytics-header {
   display: flex;
   align-items: flex-start;
@@ -732,6 +781,62 @@ body {
   justify-content: center;
   color: rgba(218, 226, 253, 0.65);
   font-weight: 700;
+}
+
+/* --- Analytics Globe --- */
+.atmos-globe {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 30% 25%, #2d9cf9, transparent 55%),
+    radial-gradient(circle at 70% 65%, #00e475, transparent 55%),
+    radial-gradient(circle at 50% 120%, rgba(0, 0, 0, 0.9), transparent 60%);
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(0, 228, 117, 0.3);
+  overflow: hidden;
+}
+
+.atmos-globe-core {
+  position: absolute;
+  inset: 12%;
+  border-radius: inherit;
+  background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.4), transparent 55%),
+    repeating-linear-gradient(
+      to right,
+      rgba(10, 18, 40, 0.2),
+      rgba(10, 18, 40, 0.2) 2px,
+      transparent 2px,
+      transparent 6px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(10, 18, 40, 0.3),
+      rgba(10, 18, 40, 0.3) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.9;
+}
+
+.atmos-globe-ring {
+  position: absolute;
+  inset: 2%;
+  border-radius: inherit;
+  border: 1px solid rgba(158, 202, 255, 0.3);
+}
+
+.atmos-globe-ring--inner {
+  inset: 10%;
+  border-color: rgba(0, 228, 117, 0.35);
+}
+
+.atmos-globe-ring--outer {
+  box-shadow: 0 0 24px rgba(158, 202, 255, 0.45);
 }
 
 .loading-inline {
@@ -967,9 +1072,10 @@ body {
 }
 
 .ui-main {
+  box-sizing: border-box;
   padding-top: 56px;
   padding-left: 256px;
-  min-height: 100svh;
+  min-height: 100dvh;
 }
 
 .ui-topbar {

@@ -4,6 +4,7 @@ import { fetchAtmosPoints } from '../api/atmosClient'
 import type { AtmosPoint } from '../api/types'
 import { formatIndex, getIndexBucket } from '../lib/indexScoring'
 import { buildFetchWindow } from '../lib/buildFetchWindow'
+import { Globe } from '../components/ui/globe'
 import '../styles/atmos.css'
 
 function yyyyMmDd(d: Date) {
@@ -148,6 +149,9 @@ export default function AnalyticsPage() {
           </div>
           <div className="analytics-heroStatus">{bucket ? bucket.label : '—'}</div>
           <div className="analytics-heroSub">{points.length} points</div>
+          <div style={{ marginTop: 18 }}>
+            <Globe />
+          </div>
         </div>
 
         <div className="analytics-card analytics-card--chart">

@@ -10,8 +10,10 @@ const DEFAULT_ENDPOINT = '/indices'
 const POINTS_ENDPOINT = import.meta.env.VITE_POINTS_ENDPOINT ?? DEFAULT_ENDPOINT
 
 function mapRowToPoint(row: BackendIndiceRow): AtmosPoint | null {
-  const latitudeRaw = row.latitude ?? row.lat
-  const longitudeRaw = row.longitude ?? row.lng
+  const latitudeRaw =
+    row.latitude ?? row.lat ?? row.location?.latitude ?? row.localisation?.latitude
+  const longitudeRaw =
+    row.longitude ?? row.lng ?? row.location?.longitude ?? row.localisation?.longitude
   if (!Number.isFinite(Number(latitudeRaw)) || !Number.isFinite(Number(longitudeRaw))) {
     return null
   }
@@ -22,7 +24,13 @@ function mapRowToPoint(row: BackendIndiceRow): AtmosPoint | null {
   return {
     id: String(row.id),
     stationId: String(row.localisation_id),
-    stationName: row.stationName ?? `Localisation #${row.localisation_id}`,
+    stationName:
+      row.stationName ??
+      row.location?.name ??
+      row.location?.ville ??
+      row.localisation?.name ??
+      row.localisation?.ville ??
+      `Localisation #${row.localisation_id}`,
     latitude,
     longitude,
     timestamp: row.date,
@@ -54,9 +62,9 @@ function buildUrl(params: FetchAtmosPointsParams) {
   const base = API_BASE_URL || window.location.origin
   const url = new URL(POINTS_ENDPOINT, base)
   url.searchParams.set('sort', params.sort ?? '-id')
-  url.searchParams.set('fields', 'id,date,indice,localisation_id')
   url.searchParams.set('page', String(params.page ?? 1))
   url.searchParams.set('limit', String(params.limit ?? 500))
+  url.searchParams.set('include', 'location')
   // Le backend supporte bien les filtres numériques.
   // Les filtres de date peuvent dépendre du parsing SQL; on applique donc
   // le filtre temporel côté front pour éviter les erreurs serveur.
@@ -75,31 +83,13 @@ export async function fetchAtmosPoints(params: FetchAtmosPointsParams): Promise<
   if (!res.ok) {
     throw new Error(`API indisponible (${res.status})`)
   }
-  const json = (await res.json()) as BackendIndicesResponse
-  const mapped = (json.data ?? []).map(mapRowToPoint).filter((p): p is AtmosPoint => p !== null)
-  if ((json.data?.length ?? 0) > 0 && mapped.length === 0) {
-    throw new Error(
-      "Le backend ne renvoie pas de coordonnées GPS (latitude/longitude), impossible d'afficher la carte sans données réelles.",
-    )
-  }
-  let points = mapped
+  const json = await res.json()
 
-  const fromMs = new Date(params.from).getTime()
-  const toMs = new Date(params.to).getTime()
-  points = points.filter((p) => {
-    const t = new Date(p.timestamp).getTime()
-    return t >= fromMs && t <= toMs
-  })
+  const rawRows: BackendIndiceRow[] = Array.isArray(json)
+    ? (json as BackendIndiceRow[])
+    : ((json as BackendIndicesResponse).data ?? [])
 
-  if (!params.bbox) return points
-
-  return points.filter((p) => {
-    return (
-      p.latitude >= params.bbox!.south &&
-      p.latitude <= params.bbox!.north &&
-      p.longitude >= params.bbox!.west &&
-      p.longitude <= params.bbox!.east
-    )
-  })
+  const mapped = rawRows.map(mapRowToPoint).filter((p): p is AtmosPoint => p !== null)
+  return mapped
 }
 
