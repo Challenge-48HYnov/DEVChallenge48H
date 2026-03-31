@@ -15,6 +15,19 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/health', async (_req, res) => {
+  try {
+    const pool = getPool();
+    if (!pool) {
+      return res.status(503).json({ status: 'down', db: 'disconnected' });
+    }
+    await pool.query('SELECT 1');
+    return res.json({ status: 'up' });
+  } catch {
+    return res.status(503).json({ status: 'down' });
+  }
+});
+
 app.get('/indices', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -39,6 +52,7 @@ app.get('/indices', async (req, res) => {
     const { clause: where, params: whereParams } = construct.buildWhere(filters);
     let order = construct.buildOrder(sort);
     
+    // Pagination fallback
     if (!order) {
       order = 'ORDER BY p.id ASC';
     }
@@ -47,18 +61,18 @@ app.get('/indices', async (req, res) => {
     
     const countQuery = `
       SELECT COUNT(*) as total 
-      FROM indice p 
+      FROM Indice p 
       ${join}
       ${where}
     `;
     
     const dataQuery = `
       SELECT ${select}
-      FROM indice p
+      FROM Indice p
       ${join}
       ${where}
       ${order}
-      OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY
+      LIMIT ${limit} OFFSET ${offset}
     `;
     
 
@@ -68,22 +82,16 @@ app.get('/indices', async (req, res) => {
       return res.status(500).json({ error: 'Base de données non connectée' });
     }
 
-    let countRequest = pool.request();
-    whereParams.forEach((param, index) => {
-      countRequest = countRequest.input(`param${index}`, param);
-    });
-    const countResult = await countRequest.query(countQuery);
+    // Compter les résultats
+    const [countResult] = await pool.query(countQuery, whereParams);
     
-    const total = countResult.recordset[0].total;
+    const total = Number(countResult[0].total);
     const totalPages = Math.ceil(total / limit);
     
-    let dataRequest = pool.request();
-    whereParams.forEach((param, index) => {
-      dataRequest = dataRequest.input(`param${index}`, param);
-    });
-    const dataResult = await dataRequest.query(dataQuery);
-    console.log('Données récupérées:', dataResult.recordset);
-    const products = construct.formatResults(dataResult.recordset, fields, includeLocation);
+    // Récupérer les données
+    const [dataResult] = await pool.query(dataQuery, whereParams);
+    console.log('Données récupérées:', dataResult);
+    const products = construct.formatResults(dataResult, fields, includeLocation);
     
     res.json({
       data: products,
@@ -108,6 +116,7 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route non trouvée' });
 });
 
+// Initialiser et démarrer le serveur
 async function startServer() {
   try {
     await initializeDatabase();
