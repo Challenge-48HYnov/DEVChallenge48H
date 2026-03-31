@@ -107,6 +107,26 @@ export default function MapPage() {
   const dailyBucket = dailyIndex != null ? getIndexBucket(dailyIndex) : null
 
   const latestTs = useMemo(() => maxTimestamp(points), [points])
+  const mapPoints = useMemo(() => {
+    const latestByStation = new Map<string, AtmosPoint>()
+    for (const point of points) {
+      const stationKey =
+        point.stationId ?? `${point.stationName}-${point.latitude.toFixed(4)}-${point.longitude.toFixed(4)}`
+      const prev = latestByStation.get(stationKey)
+      if (!prev) {
+        latestByStation.set(stationKey, point)
+        continue
+      }
+      const prevTs = new Date(prev.timestamp).getTime()
+      const nextTs = new Date(point.timestamp).getTime()
+      if (nextTs >= prevTs) {
+        latestByStation.set(stationKey, point)
+      }
+    }
+    return Array.from(latestByStation.values())
+  }, [points])
+  const handleBoundsChange = useCallback((next: BBox) => setBbox(next), [])
+  const handlePointClick = useCallback((point: AtmosPoint) => setSelectedPoint(point), [])
 
   return (
     <div className={`map-page ${drawerOpen ? 'map-page--with-drawer' : ''}`}>
@@ -159,10 +179,10 @@ export default function MapPage() {
       </div>
 
       <AtmosMap
-        points={points}
+        points={mapPoints}
         isLoading={loading}
-        onBoundsChange={(next) => setBbox(next)}
-        onPointClick={(point) => setSelectedPoint(point)}
+        onBoundsChange={handleBoundsChange}
+        onPointClick={handlePointClick}
         initialZoom={5}
       />
 
